@@ -553,8 +553,8 @@ p {
   margin: 0px 5px;
   filter: alpha(opacity=50);
   opacity: 0.5;
-  -webkit-border-radius: 20px;
-  -moz-border-radius: 20px;
+  /*-webkit-border-radius: 20px;
+  -moz-border-radius: 20px;*/
   border-radius: 20px;
   background: #e86859;
 }
@@ -612,11 +612,11 @@ p {
 
 .flip-container:hover .flipper {
   transform: rotateY(180deg);
-  -webkit-transform: rotateY(180deg);
+  /*-webkit-transform: rotateY(180deg);
   -webkit-transition-delay: 0s;
     -moz-transition-delay: 0s;
     -ms-transition-delay: 0s;
-    -o-transition-delay: 0s;
+    -o-transition-delay: 0s;*/
     transition-delay: 0s;
 }
 
@@ -677,14 +677,14 @@ font-family: 'LouisGeorgeCafe', LouisGeorgeCafe, sans-serif;
 
 
 .flipper {
-  -webkit-transition: 0.3s all;   
+ /* -webkit-transition: 0.3s all;   
 -webkit-transition-delay: 0.3s; 
--moz-transition: 0.3s all;   
--moz-transition-delay: 5s; 
+-moz-transition: 0.3s all;   */
+/*-moz-transition-delay: 5s; 
 -ms-transition: 0.3s all;   
 -ms-transition-delay: 5s; 
 -o-transition: 0.3s all;   
--o-transition-delay: 5s; 
+-o-transition-delay: 5s; */
 transition: 0.3s all;   
 transition-delay: 0.3s; 
   transform-style: preserve-3d;
