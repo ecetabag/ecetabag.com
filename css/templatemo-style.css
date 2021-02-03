@@ -587,7 +587,7 @@ p {
 }
 /* turning on hover */
 
-.flip-container2:hover .flipper {
+/* .flip-container2:hover .flipper {
   transform: rotateY(180deg);
   -webkit-transform: rotateY(180deg);
   -webkit-transition-delay: 0s;
@@ -596,7 +596,7 @@ p {
     -o-transition-delay: 0s;
     transition-delay: 0s;
 }
-
+*/
 .flip-container2,
 .front,
 .back {
@@ -617,8 +617,8 @@ p {
     -moz-transition-delay: 0s;
     -ms-transition-delay: 0s;
     -o-transition-delay: 0s;*/
-    transition-delay: 0s;
-}
+     /* transition-delay: 0s;
+} */
 
 .flip-container,
 .front,
