@@ -9,6 +9,9 @@ body {
 	background-color: #fff;
 }
 
+    a:hover {color: #D7DBDD;}
+    a { color: #D7DBDD; text-decoration: none;}
+
 ul {
 	list-style: none;
 	margin: 0px;
