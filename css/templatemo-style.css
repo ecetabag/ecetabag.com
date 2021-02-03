@@ -8,9 +8,10 @@ body {
 	overflow-x: hidden;
 	background-color: #fff;
 }
-
-    a:hover {color: #D7DBDD;}
-    a { color: #D7DBDD; text-decoration: none;}
+h4 a:hover span {
+    color:#D7DBDD; 
+}
+    
 
 ul {
 	list-style: none;
