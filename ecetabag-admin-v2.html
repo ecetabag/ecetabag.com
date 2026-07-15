@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Ece Tabag</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fragment+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+:root {
+  --bg: #E9E8E2; --surface: #F5F4EF; --white: #fff;
+  --ink: #16140F; --ink2: #4E4B42; --ink3: #8A8678;
+  --accent: #2E7D32; --accent-light: #DCEFDD; --accent-mid: #4C9A50;
+  --teal: #3E7A24; --teal-light: #E1EDD6;
+  --red: #991B1B; --red-light: #FEE2E2;
+  --amber: #9C7A00; --amber-light: #FAEFCB;
+  --border: rgba(22,20,15,.14); --border2: rgba(22,20,15,.07);
+  --sans: 'Instrument Sans', system-ui, sans-serif;
+  --mono: 'Fragment Mono', monospace;
+  --radius: 8px; --ease: cubic-bezier(.4,0,.2,1); --sidebar: 240px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--ink); font-size: 14px; font-weight: 300; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+input, textarea, select, button { font-family: var(--sans); font-size: 13px; }
+::selection { background: var(--accent-light); color: var(--accent); }
+
+.shell { display: flex; min-height: 100vh; }
+.sidebar { width: var(--sidebar); flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border2); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.main { flex: 1; padding: 2rem; overflow-x: hidden; }
+
+.sb-logo { padding: 1.25rem 1rem .75rem; border-bottom: 1px solid var(--border2); }
+.sb-logo-title { font-size: 14px; font-weight: 500; color: var(--ink); }
+.sb-logo-sub { font-size: 11px; color: var(--ink3); margin-top: 1px; font-family: var(--mono); }
+.caret{display:inline-block;width:3px;height:0.75em;background:var(--accent);margin-left:2px;vertical-align:-0.05em;animation:caret-blink 1s steps(1) infinite}
+@keyframes caret-blink{50%{opacity:0}}
+.sb-nav { padding: .5rem; flex: 1; }
+.sb-section { font-size: 10px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--ink3); padding: .5rem .5rem .25rem; margin-top: .5rem; }
+.sb-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 8px; color: var(--ink2); cursor: pointer; transition: all .15s; border: none; background: none; width: 100%; text-align: left; font-size: 13px; font-weight: 300; }
+.sb-item i { font-size: 15px; color: var(--ink3); flex-shrink: 0; }
+.sb-item:hover { background: var(--bg); color: var(--ink); }
+.sb-item:hover i { color: var(--ink2); }
+.sb-item.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
+.sb-item.active i { color: var(--accent); }
+.sb-footer { padding: 1rem; border-top: 1px solid var(--border2); display: flex; flex-direction: column; gap: 7px; }
+.preview-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: 8px; background: var(--ink); color: #fff; border: none; cursor: pointer; font-size: 12px; font-family: var(--sans); transition: background .2s; }
+.preview-btn:hover { background: #2d2c26; }
+.reset-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 12px; border-radius: 8px; background: transparent; color: var(--ink3); border: 1px solid var(--border2); cursor: pointer; font-size: 12px; font-family: var(--sans); transition: all .2s; }
+.reset-btn:hover { background: var(--red-light); color: var(--red); border-color: transparent; }
+
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.75rem; }
+.page-title { font-size: 18px; font-weight: 500; color: var(--ink); letter-spacing: -.01em; }
+.page-desc { font-size: 12px; color: var(--ink3); margin-top: 3px; }
+.save-bar { display: flex; align-items: center; gap: 10px; }
+.save-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; background: var(--accent); color: #fff; border: none; cursor: pointer; font-size: 13px; font-family: var(--sans); font-weight: 400; transition: all .2s; }
+.save-btn:hover { background: #245F27; transform: translateY(-1px); }
+.saved-badge { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--teal); opacity: 0; transition: opacity .3s; }
+.saved-badge.show { opacity: 1; }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.card { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius); padding: 1.25rem; margin-bottom: .75rem; }
+.card-title { font-size: 11px; font-weight: 500; color: var(--ink3); margin-bottom: 1rem; display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: .06em; }
+.card-title i { font-size: 14px; }
+
+.field { margin-bottom: .85rem; }
+.field:last-child { margin-bottom: 0; }
+label { display: block; font-size: 11px; font-weight: 500; letter-spacing: .05em; text-transform: uppercase; color: var(--ink3); margin-bottom: 4px; }
+input[type=text], input[type=url], input[type=email], textarea, select {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 7px;
+  background: var(--white); color: var(--ink); font-size: 13px; font-weight: 300;
+  transition: border-color .2s; outline: none; line-height: 1.5;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px var(--accent-light); }
+textarea { resize: vertical; min-height: 70px; }
+.field-hint { font-size: 11px; color: var(--ink3); margin-top: 3px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* LIST ITEMS */
+.list-item { background: var(--white); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; margin-bottom: 7px; transition: border-color .2s; }
+.list-item:hover { border-color: var(--border); }
+.list-item-hdr { display: flex; align-items: center; gap: 9px; padding: .75rem .85rem; cursor: pointer; user-select: none; }
+.list-item-hdr:hover { background: var(--bg); }
+.list-item-title { font-size: 13px; font-weight: 500; color: var(--ink); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list-item-badge { font-size: 10px; padding: 2px 7px; border-radius: 8px; background: var(--bg); color: var(--ink3); white-space: nowrap; flex-shrink: 0; }
+.list-item-body { display: none; padding: .85rem; border-top: 1px solid var(--border2); }
+.list-item-body.open { display: block; }
+.list-item-chev { font-size: 13px; color: var(--ink3); flex-shrink: 0; pointer-events: none; }
+.del-btn { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border2); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--ink3); transition: all .15s; flex-shrink: 0; }
+.del-btn:hover { background: var(--red-light); color: var(--red); border-color: transparent; }
+.del-btn i { font-size: 13px; pointer-events: none; }
+
+.add-btn { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 8px; border: 1.5px dashed var(--border); background: transparent; color: var(--ink3); cursor: pointer; font-size: 12px; font-family: var(--sans); width: 100%; justify-content: center; transition: all .2s; margin-top: 4px; }
+.add-btn:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); }
+.add-btn i { font-size: 15px; }
+
+/* ICON PICKER */
+.icon-picker-wrap { position: relative; }
+.icon-preview { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 7px; background: var(--white); cursor: pointer; transition: border-color .2s; user-select: none; }
+.icon-preview:hover { border-color: var(--accent-mid); }
+.icon-preview-box { width: 28px; height: 28px; border-radius: 6px; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.icon-preview-box i { font-size: 16px; color: var(--ink2); }
+.icon-preview-name { font-size: 12px; color: var(--ink2); flex: 1; }
+.icon-drop { position: absolute; top: calc(100% + 5px); left: 0; right: 0; z-index: 300; background: var(--white); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.1); padding: 8px; display: none; }
+.icon-drop.open { display: block; }
+.icon-search-inp { width: 100%; padding: 6px 9px; border: 1px solid var(--border2); border-radius: 6px; background: var(--bg); font-size: 12px; color: var(--ink); outline: none; margin-bottom: 6px; }
+.icon-grid { display: grid; grid-template-columns: repeat(8,1fr); gap: 3px; max-height: 180px; overflow-y: auto; }
+.icon-opt { width: 100%; aspect-ratio: 1; border-radius: 5px; border: 1px solid transparent; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .1s; }
+.icon-opt:hover { background: var(--accent-light); border-color: var(--accent-mid); }
+.icon-opt.selected { background: var(--accent-light); border-color: var(--accent); }
+.icon-opt i { font-size: 15px; color: var(--ink2); pointer-events: none; }
+.icon-opt.selected i { color: var(--accent); }
+
+/* DOT PICKER */
+.dot-row { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 6px; }
+.dot-opt { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all .15s; }
+.dot-opt.selected { border-color: var(--ink); transform: scale(1.2); }
+
+/* CI ROW */
+.ci-row { display: flex; align-items: center; gap: 7px; padding: 6px 8px; background: var(--white); border: 1px solid var(--border2); border-radius: 7px; margin-bottom: 5px; }
+.ci-row input { flex: 1; border: none; background: none; outline: none; font-size: 13px; color: var(--ink); }
+.ci-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
+
+/* TALK ROW */
+.talk-row-wrap { display: grid; grid-template-columns: 1fr 2fr 26px; gap: 8px; align-items: center; margin-bottom: 6px; }
+.talk-row-wrap input { margin: 0; }
+
+/* IMAGE UPLOAD */
+.img-upload-wrap{border:1.5px dashed var(--border);border-radius:8px;overflow:hidden;transition:border-color .2s}
+.img-upload-wrap:hover{border-color:var(--accent-mid)}
+.img-preview{width:100%;max-height:200px;object-fit:cover;display:block}
+.img-upload-empty{padding:1.5rem;text-align:center;color:var(--ink3);font-size:12px;cursor:pointer}
+.img-upload-empty i{font-size:28px;display:block;margin-bottom:6px;color:var(--ink3)}
+.img-upload-actions{display:flex;gap:6px;padding:6px;background:var(--bg);border-top:1px solid var(--border2)}
+.img-upload-file{display:none}
+
+/* TOAST */
+#toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 8px; font-size: 12px; opacity: 0; transform: translateY(6px); transition: all .3s var(--ease); z-index: 999; display: flex; align-items: center; gap: 7px; pointer-events: none; }
+#toast.show { opacity: 1; transform: none; }
+
+/* LOGIN GATE */
+#admin-login{position:fixed;inset:0;z-index:2000;background:var(--bg);display:flex;align-items:center;justify-content:center}
+#admin-login.hide{display:none}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2.5rem;width:300px;text-align:center}
+.login-mark{font-weight:700;font-size:20px;color:var(--ink);margin-bottom:4px}
+.login-sub{font-size:11px;color:var(--ink3);margin-bottom:1.5rem;font-family:var(--mono);letter-spacing:.04em}
+.login-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--ink);font-size:14px;margin-bottom:10px;outline:none;text-align:center;font-family:var(--sans)}
+.login-input:focus{border-color:var(--accent-mid);box-shadow:0 0 0 3px var(--accent-light)}
+.login-btn{width:100%;padding:10px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:background .2s}
+.login-btn:hover{background:#245F27}
+.login-error{color:#b91c1c;font-size:12px;margin-top:10px;display:none}
+</style>
+</head>
+<body>
+
+<div id="admin-login">
+  <div class="login-card">
+    <div class="login-mark">Site Admin<span class="caret"></span></div>
+    <div class="login-sub">ece/01 · protected</div>
+    <input type="text" id="login-user" class="login-input" placeholder="Username" autocomplete="username">
+    <input type="password" id="login-pass" class="login-input" placeholder="Password" autocomplete="current-password">
+    <button class="login-btn" id="login-btn">Enter</button>
+    <div class="login-error" id="login-error">Wrong password — try again.</div>
+  </div>
+</div>
+
+<div class="shell">
+
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-title">Site Admin<span class="caret"></span></div>
+    <div class="sb-logo-sub">ece/01 · ecetabag.com</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Content</div>
+    <button class="sb-item active" data-tab="hero"><i class="ti ti-home"></i>Hero &amp; bio</button>
+    <button class="sb-item" data-tab="currently"><i class="ti ti-activity"></i>Currently</button>
+    <button class="sb-item" data-tab="writing"><i class="ti ti-pencil"></i>Writing</button>
+    <button class="sb-item" data-tab="work"><i class="ti ti-briefcase"></i>Work</button>
+    <button class="sb-item" data-tab="speaking"><i class="ti ti-microphone"></i>Speaking</button>
+    <button class="sb-item" data-tab="hobbies"><i class="ti ti-heart"></i>Hobbies</button>
+    <button class="sb-item" data-tab="skills"><i class="ti ti-tools"></i>Skills &amp; tools</button>
+    <div class="sb-section">Deploy</div>
+    <button class="sb-item" data-tab="export"><i class="ti ti-download"></i>Export</button>
+  </nav>
+  <div class="sb-footer">
+    <button class="preview-btn" id="open-site-btn"><i class="ti ti-external-link"></i>Open site</button>
+    <button class="reset-btn" id="reset-btn"><i class="ti ti-refresh"></i>Reset defaults</button>
+    <button class="reset-btn" id="logout-btn"><i class="ti ti-logout"></i>Log out</button>
+  </div>
+</aside>
+
+<main class="main">
+
+<!-- HERO -->
+<div class="tab-panel active" id="tab-hero">
+  <div class="page-header">
+    <div><div class="page-title">Hero &amp; bio</div><div class="page-desc">Your headline, tagline, email, and intro paragraph.</div></div>
+    <div class="save-bar">
+      <div class="saved-badge" id="saved-hero"><i class="ti ti-circle-check"></i>Saved</div>
+      <button class="save-btn" id="save-hero-btn"><i class="ti ti-device-floppy"></i>Save</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-quote"></i>Eyebrow tagline</div>
+    <div class="field"><label>Tagline</label><input type="text" id="h-eyebrow"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-heading"></i>Hero headline — 3 lines</div>
+    <div class="field"><label>Line 1</label><input type="text" id="h-line0"></div>
+    <div class="field"><label>Line 2 <span style="color:var(--accent);font-size:10px;text-transform:none">— shown with brown highlight</span></label><input type="text" id="h-line1"></div>
+    <div class="field"><label>Line 3</label><input type="text" id="h-line2"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-mail"></i>Contact email</div>
+    <div class="field"><label>Email</label><input type="email" id="h-email"><div class="field-hint">Opens Gmail compose in browser when "Say hello" is clicked.</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-align-left"></i>Bio paragraph</div>
+    <div class="field"><textarea id="h-bio" rows="5"></textarea></div>
+  </div>
+</div>
+
+<!-- CURRENTLY -->
+<div class="tab-panel" id="tab-currently">
+  <div class="page-header">
+    <div><div class="page-title">Currently</div><div class="page-desc">Rotating ticker in the hero.</div></div>
+    <div class="save-bar">
+      <div class="saved-badge" id="saved-currently"><i class="ti ti-circle-check"></i>Saved</div>
+      <button class="save-btn" id="save-currently-btn"><i class="ti ti-device-floppy"></i>Save</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-clock"></i>Items</div>
+    <div id="ci-list"></div>
+    <button class="add-btn" id="add-ci-btn"><i class="ti ti-plus"></i>Add item</button>
+  </div>
+</div>
+
+<!-- WRITING -->
+<div class="tab-panel" id="tab-writing">
+  <div class="page-header">
+    <div><div class="page-title">Writing</div><div class="page-desc">Articles and essays. Expand a card to edit its full text.</div></div>
+    <div class="save-bar">
+      <div class="saved-badge" id="saved-writing"><i class="ti ti-circle-check"></i>Saved</div>
+      <button class="save-btn" id="save-writing-btn"><i class="ti ti-device-floppy"></i>Save</button>
+    </div>
+  </div>
+  <div id="writing-list"></div>
+  <button class="add-btn" id="add-writing-btn"><i class="ti ti-plus"></i>Add article</button>
+</div>
+
+<!-- WORK -->
+<div class="tab-panel" id="tab-work">
+  <div class="page-header">
+    <div><div class="page-title">Work</div><div class="page-desc">Job timeline — company, role, dates, description.</div></div>
+    <div class="save-bar">
+      <div class="saved-badge" id="saved-work"><i class="ti ti-circle-check"></i>Saved</div>
+      <button class="save-btn" id="save-work-btn"><i class="ti ti-device-floppy"></i>Save</button>
+    </div>
+  </div>
+  <div id="work-list"></div>
+  <button class="add-btn" id="add-work-btn"><i class="ti ti-plus"></i>Add role</button>
+</div>
+
+<!-- SPEAKING -->
+<div class="tab-panel" id="tab-speaking">
+  <div class="page-header">
+    <div><div class="page-title">Speaking &amp; community</div><div class="page-desc">Talks, conferences, leadership items.</div></div>
+    <div class="save-bar">
+      <div class="saved-badge" id="saved-speaking"><i class="ti ti-circle-check"></i>Saved</div>
+      <button class="save-btn" id="save-speaking-btn"><i class="ti ti-device-floppy"></i>Save</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-microphone"></i>Items</div>
+    <div id="talk-list"></div>
+    <button class="add-btn" id="add-talk-btn"><i class="ti ti-plus"></i>Add item</button>
+  </div>
+</div>
+
+<!-- HOBBIES -->
+<div class="tab-panel" id="tab-hobbies">
+  <div class="page-header">
+    <div><div class="page-title">Hobbies</div><div class="page-desc">"Beyond the resume" cards.</div></div>
+    <div class="save-bar">
+      <div class="saved-badge" id="saved-hobbies"><i class="ti ti-circle-check"></i>Saved</div>
+      <button class="save-btn" id="save-hobbies-btn"><i class="ti ti-device-floppy"></i>Save</button>
+    </div>
+  </div>
+  <div id="hobbies-list"></div>
+  <button class="add-btn" id="add-hobby-btn"><i class="ti ti-plus"></i>Add hobby</button>
+</div>
+
+<!-- SKILLS -->
+<div class="tab-panel" id="tab-skills">
+  <div class="page-header">
+    <div><div class="page-title">Skills &amp; tools</div><div class="page-desc">Grouped skill pills shown in the about section.</div></div>
+    <div class="save-bar">
+      <div class="saved-badge" id="saved-skills"><i class="ti ti-circle-check"></i>Saved</div>
+      <button class="save-btn" id="save-skills-btn"><i class="ti ti-device-floppy"></i>Save</button>
+    </div>
+  </div>
+  <div id="skills-list"></div>
+  <button class="add-btn" id="add-skill-btn"><i class="ti ti-plus"></i>Add group</button>
+</div>
+
+<!-- EXPORT -->
+<div class="tab-panel" id="tab-export">
+  <div class="page-header"><div><div class="page-title">Export</div><div class="page-desc">Download your site or back up your data.</div></div></div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-alert-triangle"></i>Important — how publishing works</div>
+    <p style="font-size:13px;color:var(--ink2);margin-bottom:0;line-height:1.7">Everything you edit here is saved to <b>this browser's local storage only</b>. It is <b>not</b> saved to your live site automatically — visitors (and you, on any other device or browser) will only ever see whatever was baked into <code style="background:var(--bg);padding:2px 5px;border-radius:4px;font-size:11px">index.html</code> the last time you exported it. After making changes, click "Download updated index.html" below, then replace <code style="background:var(--bg);padding:2px 5px;border-radius:4px;font-size:11px">index.html</code> in your GitHub repo with the downloaded file and push — that's what actually updates the published site.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-download"></i>Download site file</div>
+    <p style="font-size:13px;color:var(--ink2);margin-bottom:1rem;line-height:1.6">Fetches your live <code style="background:var(--bg);padding:2px 5px;border-radius:4px;font-size:11px">index.html</code> (must be in the same folder as this admin page), bakes in everything currently saved here, and downloads the result — ready to commit and push to GitHub, Vercel, or Netlify.</p>
+    <button class="save-btn" id="dl-btn" style="width:auto"><i class="ti ti-download"></i>Download updated index.html</button>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-code"></i>JSON backup</div>
+    <textarea id="json-out" rows="12" readonly style="font-family:monospace;font-size:11px;background:var(--bg)"></textarea>
+    <button class="add-btn" id="copy-json-btn" style="margin-top:7px"><i class="ti ti-copy"></i>Copy</button>
+  </div>
+</div>
+
+</main>
+</div>
+<div id="toast"><i class="ti ti-circle-check"></i><span id="toast-msg"></span></div>
+
+<script>
+// ── LOGIN GATE ──
+// NOTE: this is a simple deterrent for casual visitors, not real security.
+// Anyone who views this page's source can read the credentials below — do
+// not use this to protect anything actually sensitive. To change them,
+// just edit the ADMIN_USERNAME / ADMIN_PASSWORD values (kept as plain text
+// on purpose, not hashed).
+const ADMIN_USERNAME = 'ecos';
+const ADMIN_PASSWORD = '345742';
+const ADMIN_UNLOCK_KEY = 'ecetabag_admin_unlocked';
+const loginGate = document.getElementById('admin-login');
+if (localStorage.getItem(ADMIN_UNLOCK_KEY) === '1') { loginGate.classList.add('hide'); }
+function tryLogin(){
+  const u = document.getElementById('login-user').value;
+  const p = document.getElementById('login-pass').value;
+  if (u === ADMIN_USERNAME && p === ADMIN_PASSWORD) {
+    localStorage.setItem(ADMIN_UNLOCK_KEY, '1');
+    loginGate.classList.add('hide');
+    document.getElementById('login-error').style.display = 'none';
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+document.getElementById('login-btn').addEventListener('click', tryLogin);
+document.getElementById('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+document.getElementById('logout-btn').addEventListener('click', () => { localStorage.removeItem(ADMIN_UNLOCK_KEY); location.reload(); });
+
+const KEY = 'ecetabag_sitedata';
+const CATS = ['sociology','psycholinguistics','epistemology','pedagogy','health'];
+const DOTS = ['#D4537E','#7F77DD','#1D9E75','#BA7517','#D85A30','#4A3FA5','#0F6E56','#993C1D'];
+const BADGE_OPTS = [{v:'b-now',l:'Current'},{v:'b-strat',l:'Strategy'},{v:'b-data',l:'Data'},{v:'b-res',l:'Research'}];
+const ICONS = ['ti-coffee','ti-book','ti-piano','ti-mountain','ti-snowflake','ti-language','ti-ball-volleyball','ti-pencil','ti-music','ti-headphones','ti-camera','ti-bike','ti-run','ti-swim','ti-chef-hat','ti-plant','ti-palette','ti-code','ti-device-gamepad','ti-paw','ti-rocket','ti-heart','ti-star','ti-moon','ti-sun','ti-cloud','ti-leaf','ti-fish','ti-cat','ti-dog','ti-microphone','ti-compass','ti-telescope','ti-flask','ti-microscope','ti-brain','ti-building','ti-map','ti-plane','ti-train'];
+
+const DEFAULT = {
+  eyebrow: 'Cognitive Scientist · Builder · Writer',
+  email: 'ecetabag@berkeley.edu',
+  heroLines: ['I study how people learn','— then build things','about it.'],
+  highlightLine: 1,
+  bio: 'UC Berkeley Cognitive Science (3.9 GPA, Dean\'s List) — minors in Political Economy and Education. Research in a language lab, strategy at EY-Parthenon, AI consulting in London. Now building systems at Dynasty in SF. I also write a lot about how people learn, think, and talk.',
+  currentlyItems: ['building AI tools @ Dynasty, SF','consulting on AI strategy in London','writing about education & cognition','bouldering (very new, getting better)','revitalizing the Ladino language','playing piano way too late at night'],
+  hobbies: [
+    {icon:'ti-coffee',title:'Coffee, seriously',desc:'Oat flat white. Non-negotiable morning ritual.',tag:'daily'},
+    {icon:'ti-book',title:'Reading everything',desc:'Nonfiction, theory, whatever I can carry.',tag:'constant'},
+    {icon:'ti-piano',title:'Piano — 9 years',desc:'Classical training; now mostly late-night improvisation.',tag:'9 years'},
+    {icon:'ti-mountain',title:'Bouldering',desc:'Very new, getting better. The falling part is a process.',tag:'beginner'},
+    {icon:'ti-snowflake',title:'Skiing — 10 years',desc:'Black diamonds, preferably in fresh powder.',tag:'10 years'},
+    {icon:'ti-language',title:'Ladino revitalization',desc:'Preserving a nearly extinct Judeo-Spanish language.',tag:'passion project'},
+    {icon:'ti-ball-volleyball',title:'Volleyball captain',desc:'Intramural — takes it slightly too seriously.',tag:'team captain'},
+    {icon:'ti-pencil',title:'Writing obsessively',desc:'Sociology, language, epistemology, health.',tag:'always'}
+  ],
+  skills: [
+    {label:'Programming', items:['Python','R','JavaScript','HTML/CSS']},
+    {label:'Design & tools', items:['Figma','Fusion 360','Adobe CC','Microsoft Office']},
+    {label:'Languages', items:['Turkish — native','English — fluent','Spanish — A2','Ladino']},
+    {label:'Domains', items:['AI strategy','Cognitive science','EdTech','Operations','Data analysis']}
+  ],
+  talks: [
+    {venue:'MIT Scratch Conference', text:'Invited speaker on teaching CS across all ages in one classroom'},
+    {venue:'NEASC', text:'Invited speaker on flexible and innovative online and hands-on learning design'},
+    {venue:'FabLearn Conference', text:'Workshop instructor — robotics, electronics, 3D design with Raspberry Pi & Fusion 360'},
+    {venue:'Hisar Coding Summit', text:'Led for 7 years, 500+ students annually in coding, robotics, and technology'},
+    {venue:'PEAR', text:'Founded P2P tutoring — 300+ students, 52 mentors, JS bipartite matching algorithm, 100+ sessions/month'}
+  ],
+  jobs: [
+    {company:'Dynasty',role:'Operations, Product & Automation',badge:'b-now',badgeLabel:'Current',detail:'Built a full-stack recruiting platform with resume parsing, scoring algorithms, and outreach dashboard. Reconciled 900+ Stripe transactions. Led office expansion and vendor automation.',when:'2026–now',city:'San Francisco'},
+    {company:'Lotus AI',role:'AI Consultant',badge:'b-now',badgeLabel:'Current',detail:'Advising financial institutions on AI strategy and governance. Designing Claude, Copilot, and prompt engineering workshops for enterprise adoption across the UK.',when:'2025–now',city:'London'},
+    {company:'EY-Parthenon',role:'Strategy & Transactions',badge:'b-strat',badgeLabel:'Strategy',detail:'Sized a ~$17B U.S. cement market via port/AIS/filings triangulation. Built importers database, co-authored PLC/SCM decarbonization roadmap.',when:'2025',city:'Istanbul'},
+    {company:'Amazon Business',role:'Contract Analyst',badge:'b-strat',badgeLabel:'Consulting',detail:'50+ stakeholder interviews on sustainability purchasing. 7 recommendations projected to lift eco-product adoption in higher ed by 15–20%.',when:'2024',city:'San Francisco'},
+    {company:'IQXR / Mesmerise',role:'AI Solutions Intern',badge:'b-strat',badgeLabel:'AI',detail:'Azure trend-monitoring bot (12+ hrs/week saved), 63-tool AI catalog, AI Slack bots with ~30% engagement lift.',when:'2024',city:'San Francisco'},
+    {company:'Udemy',role:'Contract Analyst',badge:'b-data',badgeLabel:'Data',detail:'Engagement analysis in R, 5 social playbooks, AI dubbing projected to expand global reach by 20%.',when:'2024',city:'San Francisco'},
+    {company:'LCD Lab, Berkeley',role:'Research Assistant',badge:'b-res',badgeLabel:'Research',detail:'48-week study with Dr. Mahesh Srinivasan on children\'s concept formation. Designed experiments, analyzed data in R.',when:'2022–23',city:'Berkeley'}
+  ],
+  writings: [
+    {cat:'sociology',catLabel:'Sociology of education',dot:'#D4537E',title:'Addressing the Root: Poverty and Educational Achievement',desc:'Why fixing schools requires fixing the world around them first.',body:'<p>Educational achievement gaps are often treated as a school problem — a matter of teacher quality, curriculum, or funding. But what if the root cause is something schools can\'t control?</p><p>This essay examines how poverty shapes cognitive development, school readiness, and long-term outcomes, drawing on research from Reardon, Duncan, and Murnane.</p>'},
+    {cat:'psycholinguistics',catLabel:'Psycholinguistics',dot:'#7F77DD',title:'How Children Learn English Morphology — and Social Norms Along With It',desc:'Language isn\'t just communication. It\'s the transmission of bias.',body:'<p>When a child learns to say \'he\' as a default pronoun or uses \'guys\' to address any group, they\'re not just learning grammar — they\'re absorbing a worldview.</p>'},
+    {cat:'epistemology',catLabel:'Epistemology',dot:'#1D9E75',title:'Formulating Knowledge in Non-Ideal Agents',desc:'From Socrates to AI: what it means to know something imperfectly.',body:'<p>Classical epistemology was built for idealized reasoners — beings with perfect memory, infinite time, and no cognitive biases.</p>'},
+    {cat:'sociology',catLabel:'Sociology',dot:'#BA7517',title:'How Schooling Affects Social Mobility',desc:'Three theorists, one uncomfortable conclusion about the American Dream.',body:'<p>Pitirim Sorokin saw education as the great equalizer. Sean Reardon\'s data shows it\'s become the great stratifier.</p>'},
+    {cat:'pedagogy',catLabel:'Pedagogy',dot:'#7F77DD',title:'Breaking Free from Formulas: Structured Writing and Creativity',desc:'Does teaching kids to write in templates make them worse writers?',body:'<p>The five-paragraph essay has a lot to answer for. It produces legible, forgettable writing.</p>'},
+    {cat:'health',catLabel:'Health & cognition',dot:'#1D9E75',title:'Increasing the Thermic Effect of Food on Women',desc:'Meal timing, eating speed, and nutrients as levers for metabolic health.',body:'<p>The thermic effect of food is an underappreciated lever in metabolic health.</p>'}
+  ]
+};
+
+// ── DATA ──
+function load() {
+  try { const s = localStorage.getItem(KEY); return s ? Object.assign({}, DEFAULT, JSON.parse(s)) : JSON.parse(JSON.stringify(DEFAULT)); }
+  catch { return JSON.parse(JSON.stringify(DEFAULT)); }
+}
+function save(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
+
+// ── UI HELPERS ──
+function toast(msg) {
+  document.getElementById('toast-msg').textContent = msg;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2500);
+}
+function showSaved(id) {
+  const b = document.getElementById('saved-' + id);
+  if (!b) return;
+  b.classList.add('show');
+  clearTimeout(b._t);
+  b._t = setTimeout(() => b.classList.remove('show'), 2500);
+}
+function esc(s) { return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── TABS ──
+document.querySelectorAll('.sb-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    btn.classList.add('active');
+    if (tab === 'export') renderExport();
+  });
+});
+
+// ── COLLAPSIBLE ITEMS ──
+function makeItem(headerHTML, bodyHTML, onDelete) {
+  const wrap = document.createElement('div');
+  wrap.className = 'list-item';
+
+  const hdr = document.createElement('div');
+  hdr.className = 'list-item-hdr';
+  hdr.innerHTML = headerHTML + '<i class="ti ti-chevron-down list-item-chev"></i>';
+
+  const delBtn = document.createElement('button');
+  delBtn.className = 'del-btn';
+  delBtn.innerHTML = '<i class="ti ti-trash"></i>';
+  delBtn.title = 'Delete';
+  delBtn.addEventListener('click', e => { e.stopPropagation(); if (onDelete) onDelete(wrap); else wrap.remove(); });
+
+  // insert del before chevron
+  hdr.insertBefore(delBtn, hdr.lastElementChild);
+
+  const body = document.createElement('div');
+  body.className = 'list-item-body';
+  body.innerHTML = bodyHTML;
+
+  hdr.addEventListener('click', () => {
+    const open = body.classList.toggle('open');
+    const chev = hdr.querySelector('.list-item-chev');
+    if (chev) { chev.className = 'ti list-item-chev ' + (open ? 'ti-chevron-up' : 'ti-chevron-down'); }
+  });
+
+  wrap.appendChild(hdr);
+  wrap.appendChild(body);
+  return wrap;
+}
+
+function openItem(item) {
+  const body = item.querySelector('.list-item-body');
+  const chev = item.querySelector('.list-item-chev');
+  if (body) body.classList.add('open');
+  if (chev) chev.className = 'ti list-item-chev ti-chevron-up';
+}
+
+// ── HERO ──
+function renderHero() {
+  const d = load();
+  document.getElementById('h-eyebrow').value = d.eyebrow || '';
+  (d.heroLines || []).forEach((l, i) => { const el = document.getElementById('h-line' + i); if (el) el.value = l; });
+  document.getElementById('h-email').value = d.email || '';
+  document.getElementById('h-bio').value = d.bio || '';
+}
+document.getElementById('save-hero-btn').addEventListener('click', () => {
+  const d = load();
+  d.eyebrow = document.getElementById('h-eyebrow').value;
+  d.heroLines = [0,1,2].map(i => document.getElementById('h-line' + i).value);
+  d.email = document.getElementById('h-email').value;
+  d.bio = document.getElementById('h-bio').value;
+  save(d); showSaved('hero'); toast('Hero saved!');
+});
+
+// ── CURRENTLY ──
+function renderCurrently() {
+  const d = load();
+  const list = document.getElementById('ci-list');
+  list.innerHTML = '';
+  (d.currentlyItems || []).forEach(v => addCIRow(v, list));
+}
+function addCIRow(v, list) {
+  if (!list) list = document.getElementById('ci-list');
+  const row = document.createElement('div');
+  row.className = 'ci-row';
+  row.innerHTML = '<div class="ci-dot"></div><input type="text" class="ci-input" value="' + esc(v) + '" placeholder="doing something...">';
+  const del = document.createElement('button');
+  del.className = 'del-btn';
+  del.innerHTML = '<i class="ti ti-trash"></i>';
+  del.addEventListener('click', () => row.remove());
+  row.appendChild(del);
+  list.appendChild(row);
+}
+document.getElementById('add-ci-btn').addEventListener('click', () => addCIRow(''));
+document.getElementById('save-currently-btn').addEventListener('click', () => {
+  const d = load();
+  d.currentlyItems = Array.from(document.querySelectorAll('.ci-input')).map(i => i.value).filter(Boolean);
+  save(d); showSaved('currently'); toast('Currently saved!');
+});
+
+// ── WRITING ──
+function buildImgUpload(id, existingImg) {
+  const wrap = document.createElement('div');
+  wrap.className = 'img-upload-wrap';
+  wrap.dataset.imgId = id;
+  if (existingImg) {
+    wrap.innerHTML = '<img class="img-preview" src="' + existingImg + '" alt=""><div class="img-upload-actions"><button class="add-btn" style="margin:0;flex:1;padding:5px" onclick="triggerImgUpload(this)"><i class="ti ti-upload"></i>Replace</button><button class="add-btn" style="margin:0;flex:1;padding:5px;color:var(--red)" onclick="clearImg(this)"><i class="ti ti-trash"></i>Remove</button></div>';
+  } else {
+    wrap.innerHTML = '<div class="img-upload-empty" onclick="triggerImgUpload(this)"><i class="ti ti-photo"></i>Click to upload an image</div>';
+  }
+  wrap.innerHTML += '<input type="hidden" class="w-img-data" value="' + (existingImg || '') + '"><input type="file" class="img-upload-file" accept="image/*">';
+  return wrap;
+}
+function triggerImgUpload(btn) {
+  btn.closest('.img-upload-wrap').querySelector('.img-upload-file').click();
+}
+function clearImg(btn) {
+  const wrap = btn.closest('.img-upload-wrap');
+  wrap.querySelector('.w-img-data').value = '';
+  wrap.innerHTML = '<div class="img-upload-empty" onclick="triggerImgUpload(this)"><i class="ti ti-photo"></i>Click to upload an image</div><input type="hidden" class="w-img-data" value=""><input type="file" class="img-upload-file" accept="image/*">';
+}
+document.addEventListener('change', e => {
+  if (!e.target.classList.contains('img-upload-file')) return;
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const data = ev.target.result;
+    const wrap = e.target.closest('.img-upload-wrap');
+    wrap.querySelector('.w-img-data').value = data;
+    wrap.innerHTML = '<img class="img-preview" src="' + data + '" alt=""><div class="img-upload-actions"><button class="add-btn" style="margin:0;flex:1;padding:5px" onclick="triggerImgUpload(this)"><i class="ti ti-upload"></i>Replace</button><button class="add-btn" style="margin:0;flex:1;padding:5px;color:var(--red)" onclick="clearImg(this)"><i class="ti ti-trash"></i>Remove</button></div><input type="hidden" class="w-img-data" value="' + data + '"><input type="file" class="img-upload-file" accept="image/*">';
+  };
+  reader.readAsDataURL(file);
+});
+
+function renderWriting() {
+  const d = load();
+  const list = document.getElementById('writing-list');
+  list.innerHTML = '';
+  (d.writings || []).forEach((w, i) => {
+    const dotPicker = buildDotPicker(w.dot, 'wdot-' + i);
+    const hdr = '<div style="width:10px;height:10px;border-radius:50%;background:' + w.dot + ';flex-shrink:0" class="w-dot-preview"></div><div class="list-item-title">' + esc(w.title) + '</div>' + (w.date ? '<span class="list-item-badge" style="font-family:var(--mono)">' + esc(w.date) + '</span>' : '') + '<span class="list-item-badge">' + esc(w.cat) + '</span>';
+    const bodyStatic = '<div class="two-col"><div class="field"><label>Category slug</label><select class="w-cat">' + CATS.map(c => '<option value="' + c + '"' + (w.cat === c ? ' selected' : '') + '>' + c + '</option>').join('') + '</select></div><div class="field"><label>Category label</label><input type="text" class="w-catlabel" value="' + esc(w.catLabel) + '"></div></div><div class="two-col"><div class="field"><label>Title</label><input type="text" class="w-title" value="' + esc(w.title) + '"></div><div class="field"><label>Date</label><input type="text" class="w-date" value="' + esc(w.date || '') + '" placeholder="e.g. June 2026"></div></div><div class="field"><label>Short description (shown on card)</label><textarea class="w-desc" rows="2">' + esc(w.desc) + '</textarea></div><div class="field"><label>Dot color</label>' + dotPicker + '</div><div class="field"><label>Summary <span style="font-size:10px;color:var(--ink3);text-transform:none;font-weight:300">— shown in a framed box at the top of the article</span></label><textarea class="w-summary" rows="3" placeholder="Optional: a brief summary shown before the essay...">' + esc(w.summary || '') + '</textarea></div><div class="field"><label>Article image <span style="font-size:10px;color:var(--ink3);text-transform:none;font-weight:300">— shown below the title</span></label><input type="text" class="w-imgcaption" value="' + esc(w.imageCaption || '') + '" placeholder="Image caption / alt text (optional)" style="margin-bottom:8px"></div><div class="field"><label>Full essay body <span style="font-size:10px;color:var(--ink3);text-transform:none;font-weight:300">— paste full text, wrap in &lt;p&gt; tags or plain paragraphs</span></label><textarea class="w-body" rows="14" style="font-size:12px;line-height:1.7">' + esc(w.body) + '</textarea></div>';
+    const item = makeItem(hdr, bodyStatic);
+    // inject image uploader (needs DOM element, not string)
+    const imgLabel = item.querySelector('.field:has(label)');
+    const imgFieldLabels = item.querySelectorAll('.field label');
+    let imgField = null;
+    imgFieldLabels.forEach(l => { if (l.textContent.includes('Article image')) imgField = l.closest('.field'); });
+    if (imgField) imgField.appendChild(buildImgUpload('wimg-' + i, w.image || ''));
+    list.appendChild(item);
+  });
+}
+document.getElementById('add-writing-btn').addEventListener('click', () => {
+  const d = load();
+  d.writings.push({cat:'sociology',catLabel:'Sociology',dot:'#D4537E',title:'New article',date:'',desc:'Short description.',summary:'',image:'',imageCaption:'',body:'<p>Write your essay here.</p>'});
+  save(d); renderWriting();
+  const items = document.querySelectorAll('#writing-list .list-item');
+  if (items.length) openItem(items[items.length - 1]);
+});
+document.getElementById('save-writing-btn').addEventListener('click', () => {
+  const d = load();
+  d.writings = Array.from(document.querySelectorAll('#writing-list .list-item')).map(item => {
+    const dotHidden = item.querySelector('.dot-row + input[type=hidden]');
+    const imgHidden = item.querySelector('.w-img-data');
+    const bodyRaw = item.querySelector('.w-body').value;
+    return {
+      cat: item.querySelector('.w-cat').value,
+      catLabel: item.querySelector('.w-catlabel').value,
+      dot: dotHidden ? dotHidden.value : DOTS[0],
+      title: item.querySelector('.w-title').value,
+      date: item.querySelector('.w-date') ? item.querySelector('.w-date').value : '',
+      desc: item.querySelector('.w-desc').value,
+      summary: item.querySelector('.w-summary') ? item.querySelector('.w-summary').value : '',
+      image: imgHidden ? imgHidden.value : '',
+      imageCaption: item.querySelector('.w-imgcaption') ? item.querySelector('.w-imgcaption').value : '',
+      body: bodyRaw.includes('<p>') ? bodyRaw : bodyRaw.split('\n\n').filter(Boolean).map(p => '<p>' + p.trim() + '</p>').join('')
+    };
+  });
+  save(d); showSaved('writing'); toast('Writing saved!');
+});
+
+// ── WORK ──
+function renderWork() {
+  const d = load();
+  const list = document.getElementById('work-list');
+  list.innerHTML = '';
+  (d.jobs || []).forEach((j, i) => {
+    const hdr = '<div class="list-item-title">' + esc(j.company) + ' <span style="font-weight:300;color:var(--ink3)">· ' + esc(j.role) + '</span></div><span class="list-item-badge">' + esc(j.badgeLabel) + '</span>';
+    const body = '<div class="two-col"><div class="field"><label>Company</label><input type="text" class="j-co" value="' + esc(j.company) + '"></div><div class="field"><label>Role</label><input type="text" class="j-role" value="' + esc(j.role) + '"></div></div><div class="two-col"><div class="field"><label>Dates</label><input type="text" class="j-when" value="' + esc(j.when) + '"></div><div class="field"><label>City</label><input type="text" class="j-city" value="' + esc(j.city) + '"></div></div><div class="field"><label>Badge</label><select class="j-badge">' + BADGE_OPTS.map(b => '<option value="' + b.v + '"' + (j.badge === b.v ? ' selected' : '') + '>' + b.l + '</option>').join('') + '</select></div><div class="field"><label>Description</label><textarea class="j-detail" rows="3">' + esc(j.detail) + '</textarea></div>';
+    list.appendChild(makeItem(hdr, body));
+  });
+}
+document.getElementById('add-work-btn').addEventListener('click', () => {
+  const d = load();
+  d.jobs.push({company:'New Company',role:'Role',badge:'b-strat',badgeLabel:'Strategy',detail:'What you did.',when:'2024',city:'San Francisco'});
+  save(d); renderWork();
+  const items = document.querySelectorAll('#work-list .list-item');
+  if (items.length) openItem(items[items.length - 1]);
+});
+document.getElementById('save-work-btn').addEventListener('click', () => {
+  const d = load();
+  d.jobs = Array.from(document.querySelectorAll('#work-list .list-item')).map(item => {
+    const bv = item.querySelector('.j-badge').value;
+    return { company: item.querySelector('.j-co').value, role: item.querySelector('.j-role').value, badge: bv, badgeLabel: BADGE_OPTS.find(b => b.v === bv)?.l || '', detail: item.querySelector('.j-detail').value, when: item.querySelector('.j-when').value, city: item.querySelector('.j-city').value };
+  });
+  save(d); showSaved('work'); toast('Work saved!');
+});
+
+// ── SPEAKING ──
+function renderSpeaking() {
+  const d = load();
+  const list = document.getElementById('talk-list');
+  list.innerHTML = '';
+  (d.talks || []).forEach(t => addTalkRow(t, list));
+}
+function addTalkRow(t, list) {
+  if (!list) list = document.getElementById('talk-list');
+  const row = document.createElement('div');
+  row.className = 'talk-row-wrap';
+  row.innerHTML = '<input type="text" class="tk-venue" value="' + esc(t ? t.venue : '') + '" placeholder="Venue / org"><input type="text" class="tk-text" value="' + esc(t ? t.text : '') + '" placeholder="Description">';
+  const del = document.createElement('button');
+  del.className = 'del-btn';
+  del.innerHTML = '<i class="ti ti-trash"></i>';
+  del.addEventListener('click', () => row.remove());
+  row.appendChild(del);
+  list.appendChild(row);
+}
+document.getElementById('add-talk-btn').addEventListener('click', () => addTalkRow(null));
+document.getElementById('save-speaking-btn').addEventListener('click', () => {
+  const d = load();
+  d.talks = Array.from(document.querySelectorAll('.talk-row-wrap')).map(row => ({ venue: row.querySelector('.tk-venue').value, text: row.querySelector('.tk-text').value })).filter(t => t.venue || t.text);
+  save(d); showSaved('speaking'); toast('Speaking saved!');
+});
+
+// ── HOBBIES ──
+function renderHobbies() {
+  const d = load();
+  const list = document.getElementById('hobbies-list');
+  list.innerHTML = '';
+  (d.hobbies || []).forEach((h, i) => {
+    const picker = buildIconPicker(h.icon, 'hbic-' + i);
+    const hdr = '<i class="ti ' + h.icon + '" style="font-size:16px;color:var(--accent);flex-shrink:0"></i><div class="list-item-title">' + esc(h.title) + '</div><span class="list-item-badge">' + esc(h.tag) + '</span>';
+    const body = '<div class="two-col"><div class="field"><label>Title</label><input type="text" class="hb-title" value="' + esc(h.title) + '"></div><div class="field"><label>Tag</label><input type="text" class="hb-tag" value="' + esc(h.tag) + '"></div></div><div class="field"><label>Description</label><textarea class="hb-desc" rows="2">' + esc(h.desc) + '</textarea></div><div class="field"><label>Icon</label>' + picker + '</div>';
+    list.appendChild(makeItem(hdr, body));
+  });
+}
+document.getElementById('add-hobby-btn').addEventListener('click', () => {
+  const d = load();
+  d.hobbies.push({icon:'ti-star',title:'New hobby',desc:'Describe it.',tag:'hobby'});
+  save(d); renderHobbies();
+  const items = document.querySelectorAll('#hobbies-list .list-item');
+  if (items.length) openItem(items[items.length - 1]);
+});
+document.getElementById('save-hobbies-btn').addEventListener('click', () => {
+  const d = load();
+  d.hobbies = Array.from(document.querySelectorAll('#hobbies-list .list-item')).map(item => {
+    const iv = item.querySelector('input[type=hidden]');
+    return { icon: iv ? iv.value : 'ti-star', title: item.querySelector('.hb-title').value, desc: item.querySelector('.hb-desc').value, tag: item.querySelector('.hb-tag').value };
+  });
+  save(d); showSaved('hobbies'); toast('Hobbies saved!');
+});
+
+// ── SKILLS ──
+function renderSkills() {
+  const d = load();
+  const list = document.getElementById('skills-list');
+  list.innerHTML = '';
+  (d.skills || []).forEach((g, i) => {
+    const hdr = '<div class="list-item-title">' + esc(g.label) + '</div><span class="list-item-badge">' + g.items.length + ' items</span>';
+    const body = '<div class="field"><label>Group name</label><input type="text" class="sg-label" value="' + esc(g.label) + '"></div><div class="field"><label>Skills <span style="font-size:10px;color:var(--ink3);text-transform:none;font-weight:300">— one per line</span></label><textarea class="sg-items" rows="6">' + g.items.map(s => esc(s)).join('\n') + '</textarea></div>';
+    list.appendChild(makeItem(hdr, body));
+  });
+}
+document.getElementById('add-skill-btn').addEventListener('click', () => {
+  const list = document.getElementById('skills-list');
+  const hdr = '<div class="list-item-title">New group</div>';
+  const body = '<div class="field"><label>Group name</label><input type="text" class="sg-label" value="New group"></div><div class="field"><label>Skills — one per line</label><textarea class="sg-items" rows="6"></textarea></div>';
+  const item = makeItem(hdr, body);
+  list.appendChild(item);
+  openItem(item);
+});
+document.getElementById('save-skills-btn').addEventListener('click', () => {
+  const d = load();
+  d.skills = Array.from(document.querySelectorAll('#skills-list .list-item')).map(item => ({
+    label: item.querySelector('.sg-label').value,
+    items: item.querySelector('.sg-items').value.split('\n').map(s => s.trim()).filter(Boolean)
+  }));
+  save(d); showSaved('skills'); toast('Skills saved!');
+});
+
+// ── ICON PICKER ──
+let activePickerId = null;
+function buildIconPicker(cur, id) {
+  const gridHTML = ICONS.map(ic => '<button class="icon-opt' + (ic === cur ? ' selected' : '') + '" data-icon="' + ic + '" title="' + ic + '"><i class="ti ' + ic + '"></i></button>').join('');
+  return '<div class="icon-picker-wrap" data-picker-id="' + id + '"><div class="icon-preview"><div class="icon-preview-box"><i class="ti ' + cur + '" id="' + id + '-pi"></i></div><span class="icon-preview-name" id="' + id + '-pn">' + cur + '</span><i class="ti ti-chevron-down" style="color:var(--ink3);font-size:13px"></i></div><input type="hidden" id="' + id + '-v" value="' + cur + '"><div class="icon-drop" id="' + id + '-drop"><input class="icon-search-inp" placeholder="Search icons..." data-picker="' + id + '"><div class="icon-grid" id="' + id + '-grid">' + gridHTML + '</div></div></div>';
+}
+document.addEventListener('click', e => {
+  const preview = e.target.closest('.icon-preview');
+  if (preview) {
+    const wrap = preview.closest('.icon-picker-wrap');
+    const id = wrap.dataset.pickerId;
+    const drop = document.getElementById(id + '-drop');
+    if (activePickerId && activePickerId !== id) {
+      const prev = document.getElementById(activePickerId + '-drop');
+      if (prev) prev.classList.remove('open');
+    }
+    drop.classList.toggle('open');
+    activePickerId = drop.classList.contains('open') ? id : null;
+    return;
+  }
+  const iconOpt = e.target.closest('.icon-opt');
+  if (iconOpt) {
+    const grid = iconOpt.closest('.icon-grid');
+    const drop = iconOpt.closest('.icon-drop');
+    const wrap = drop.closest('.icon-picker-wrap');
+    const id = wrap.dataset.pickerId;
+    const icon = iconOpt.dataset.icon;
+    grid.querySelectorAll('.icon-opt').forEach(o => o.classList.remove('selected'));
+    iconOpt.classList.add('selected');
+    document.getElementById(id + '-v').value = icon;
+    document.getElementById(id + '-pi').className = 'ti ' + icon;
+    document.getElementById(id + '-pn').textContent = icon;
+    drop.classList.remove('open');
+    activePickerId = null;
+    // update header icon
+    const item = wrap.closest('.list-item');
+    if (item) { const hi = item.querySelector('.list-item-hdr i.ti:not(.list-item-chev)'); if (hi) hi.className = 'ti ' + icon; }
+    return;
+  }
+  if (!e.target.closest('.icon-picker-wrap') && activePickerId) {
+    const drop = document.getElementById(activePickerId + '-drop');
+    if (drop) drop.classList.remove('open');
+    activePickerId = null;
+  }
+});
+document.addEventListener('input', e => {
+  if (!e.target.classList.contains('icon-search-inp')) return;
+  const id = e.target.dataset.picker;
+  const q = e.target.value.toLowerCase();
+  const cur = document.getElementById(id + '-v').value;
+  const grid = document.getElementById(id + '-grid');
+  grid.innerHTML = ICONS.filter(ic => ic.includes(q)).map(ic => '<button class="icon-opt' + (ic === cur ? ' selected' : '') + '" data-icon="' + ic + '" title="' + ic + '"><i class="ti ' + ic + '"></i></button>').join('');
+});
+
+// ── DOT PICKER ──
+function buildDotPicker(cur, id) {
+  const dots = DOTS.map(c => '<div class="dot-opt' + (c === cur ? ' selected' : '') + '" style="background:' + c + '" data-color="' + c + '" data-picker="' + id + '"></div>').join('');
+  return '<div class="dot-row">' + dots + '</div><input type="hidden" id="' + id + '-v" value="' + cur + '">';
+}
+document.addEventListener('click', e => {
+  const dot = e.target.closest('.dot-opt');
+  if (!dot) return;
+  const color = dot.dataset.color;
+  const pickerId = dot.dataset.picker;
+  dot.closest('.dot-row').querySelectorAll('.dot-opt').forEach(d => d.classList.remove('selected'));
+  dot.classList.add('selected');
+  const hidden = document.getElementById(pickerId + '-v');
+  if (hidden) hidden.value = color;
+  // update the preview dot in header
+  const item = dot.closest('.list-item');
+  if (item) { const prev = item.querySelector('.w-dot-preview'); if (prev) prev.style.background = color; }
+});
+
+// ── EXPORT ──
+function renderExport() { document.getElementById('json-out').value = JSON.stringify(load(), null, 2); }
+document.getElementById('copy-json-btn').addEventListener('click', () => { navigator.clipboard.writeText(document.getElementById('json-out').value).then(() => toast('Copied!')); });
+document.getElementById('dl-btn').addEventListener('click', async () => {
+  try {
+    const res = await fetch('index.html');
+    if (!res.ok) throw new Error('not found');
+    let html = await res.text();
+    const dataStr = JSON.stringify(load(), null, 2);
+    const re = /const DEFAULT_DATA\s*=\s*\{[\s\S]*?\n\};/;
+    if (!re.test(html)) throw new Error('pattern not found');
+    html = html.replace(re, 'const DEFAULT_DATA=' + dataStr + ';');
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'index.html'; a.click();
+    URL.revokeObjectURL(url);
+    toast('index.html downloaded — replace it in your repo and push to publish!');
+  } catch (e) {
+    toast('Could not find index.html next to this admin page — keep both files in the same folder.');
+  }
+});
+document.getElementById('open-site-btn').addEventListener('click', () => window.open('index.html', '_blank'));
+document.getElementById('reset-btn').addEventListener('click', () => {
+  if (!confirm('Reset everything to defaults? This cannot be undone.')) return;
+  localStorage.removeItem(KEY);
+  init(); toast('Reset to defaults!');
+});
+
+function init() { renderHero(); renderCurrently(); renderWriting(); renderWork(); renderSpeaking(); renderHobbies(); renderSkills(); }
+init();
+</script>
+</body>
+</html>
